@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="angular.min.js"></script>
+    <title>simpleProject</title>
+    <script>
+        var app = angular.module("myApp", [])   
+
+        app.controller("EmployeeCtrl", function ($scope, $http) {
+
+            GetAll();
+
+            //Read Employee data from the DB
+            function GetAll() {
+                alert("Get the data");
+                $http.get('/api/Employees').then(function (response) { $scope.Employee = response.data }, function(){ alert("Not Found")});
+            }
+
+            //Insert Employee data to the DB
+            $scope.InsertEmp = function (Employee) {
+                 $http({
+                    method: 'post',
+                    data: Employee,
+                     url: 'api/Employees',
+                    header: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            //Delete Employee data to the DB
+            $scope.dltEmployee = function (EmployeeID) {
+                alert("what do u want to delete");
+                var url = 'api/Employees/' + EmployeeID;
+                return $http({
+                    method: 'delete',
+                    data: EmployeeID,
+                    url: url
+                });
+            }
+
+            //Get the EmployeeID Detail from the DB
+            $scope.EmployeeDetails = { EmployeeID: "", Name: "", Position: "", Age: "", Salary: "" }
+            $scope.EmpGetById = function (employeeID) {
+                $http.get('api/Employees/' + employeeID).then(function (response) {
+                    $scope.EmployeeDetails = response.data;
+                });
+            }
+
+            //Update the Employee  data to the DB
+            $scope.UpdateEmp = function (formdata) {
+                confirm("Are you sure you want to Update the Employee Id : " + formdata.EmployeeID);
+                debugger;
+                $http.put('api/Employees/', formdata).then(function () { alert("Updated Successfully"), EmpList(); }, function () { alert("Failed to Update") });
+            }
+            
+        })
+
+    </script>
+</head>
+<body ng-app="myApp" ng-controller="EmployeeCtrl">
+    <h1>Employee Details</h1>
+    <table border="1px Solid black">
+        <tr>
+            <th>EmployeeID</th>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Age</th>
+            <th>Salary</th>
+
+        </tr>
+        <tr ng-repeat="items in Employee">
+            <td>{{items.EmployeeID}}</td>
+            <td>{{items.Name}}</td>
+            <td>{{items.Position}}</td>
+            <td>{{items.Age}}</td>
+            <td>{{items.Salary}}</td>
+            <td> <input type="button" id="Delete" value="Delete" ng-click="dltEmployee(items.EmployeeID)" /> </td>
+            <td> <input type="button" id="Edit" value="Edit" ng-click="EmpGetById(items.EmployeeID)" /> </td>
+
+
+        </tr>
+    </table>
+    <br /><br />
+    <input type="text" ng-model="EmployeeForm.EmployeeID" placeholder="Enter Employee Id" />
+    <input type="text" ng-model="EmployeeForm.Name" placeholder="Enter Employee Name" />
+    <input type="text" ng-model="EmployeeForm.Position" placeholder="Enter Employee Position" />
+    <input type="text" ng-model="EmployeeForm.Age" placeholder="Enter Employee Age" />
+    <input type="text" ng-model="EmployeeForm.Salary" placeholder="Enter Employee Salary" />
+    <input type="button" ng-click="InsertEmp(EmployeeForm)" value="InsertEmp" />
+
+    <br /><br />
+    <h1>Update Employee</h1>
+    EmployeeID : <span>{{EmployeeDetails.EmployeeID}}</span>
+    Name :<input type="text" ng-model="EmployeeDetails.Name" />
+    Position : <input type="text" ng-model="EmployeeDetails.Position" />
+    Age : <input type="text" ng-model="EmployeeDetails.Age" />
+    Salary :<input type="text" ng-model="EmployeeDetails.Salary" />
+    <input type="button" ng-click="UpdateEmp(EmployeeDetails)" value="Update" />
+
+</body>
+</html>
